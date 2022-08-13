@@ -10,15 +10,15 @@ with open('config.json', 'r') as f:
     data = json.load(f)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret'
 socketio = SocketIO(app)
 
-@socketio.route('/')
+@app.route('/')
 def homepage():
-    return 'asd'#render_template('src/index.html', data=data)
+    return render_template('src/index.html', data=data)
 
 ip = data["ip"]
 port = data["port"]
 extension = data["extension"]
 
-socketio.run(app)
+if __name__ == '__main__':
+    socketio.run(app)
