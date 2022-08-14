@@ -1,4 +1,6 @@
 Flask
-Flask-Testing
+simple-websocket
 flask-socketio
+websocket-client
+requests
 nose

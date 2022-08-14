@@ -1,24 +1,50 @@
-from http import client
-from flask import Flask, render_template, Blueprint
 import json
-import socket
-import threading
-import sys
-from flask_socketio import SocketIO
+import subprocess
+import time
+
+import socketio
 
 with open('config.json', 'r') as f:
     data = json.load(f)
 
-app = Flask(__name__)
-socketio = SocketIO(app)
-
-@app.route('/')
-def homepage():
-    return render_template('src/index.html', data=data)
-
 ip = data["ip"]
 port = data["port"]
-extension = data["extension"]
+fileName = data["fileName"]
+clientName = data["clientName"]
+scriptName = data["scriptName"]
 
-if __name__ == '__main__':
-    socketio.run(app)
+sio = socketio.Client()
+running = False
+
+
+@sio.event
+def disconnect():
+    sio.disconnect()
+
+
+@sio.on('start')
+def on_start():
+    global running
+    if running:
+        return
+    running = True
+
+    print('Started the process')
+    process = subprocess.Popen(["sh", scriptName])
+    process.wait()
+    file = open(fileName, "r")
+    sio.emit("file", {'data': file.read(), 'client': clientName, 'file': fileName})
+    print("DONE")
+    running = False
+
+
+while True:
+    try:
+        print("Connecting to {}:{}...".format(ip, port))
+        sio.connect("{}:{}".format(ip, port))
+        print("Connected!")
+    except Exception as e:
+        print(e)
+    else:
+        sio.wait()
+    time.sleep(3)
