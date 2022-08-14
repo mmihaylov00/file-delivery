@@ -3,5 +3,5 @@
     "port": "5000",
     "clientName": "testclient",
     "scriptName": "test.sh",
-    "fileName": "output.txt",
+    "fileName": "output.txt"
 }
